@@ -1,8 +1,8 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const fs = require('fs');
 
 function createWindow() {
+  // Create the browser window.
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -12,27 +12,20 @@ function createWindow() {
     }
   });
 
-  win.loadFile('TypeWrite.html');  // Make sure this matches your HTML filename
+  // Load your HTML file (make sure the filename matches)
+  win.loadFile('TypeWrite.html');
 }
 
 app.whenReady().then(() => {
   createWindow();
 
   app.on('activate', () => {
+    // On macOS, recreate a window when the dock icon is clicked and no windows are open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
 app.on('window-all-closed', () => {
+  // On macOS, apps usually remain active until the user quits explicitly with Cmd + Q.
   if (process.platform !== 'darwin') app.quit();
-});
-
-// Handle sound playback requests from the renderer process
-ipcMain.on('play-sound', (event, sound) => {
-  const soundFile = path.join(__dirname, 'sounds', `${sound}.mp3`);  // Adjust path if needed
-
-  if (fs.existsSync(soundFile)) {
-    const audio = new Audio(soundFile);
-    audio.play();
-  }
 });
