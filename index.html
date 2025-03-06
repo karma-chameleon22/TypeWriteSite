@@ -94,46 +94,6 @@
     </div>
 
     <script>
-        // Audio files for key sounds (same folder as the HTML)
-        const sounds = {
-            backspace: new Audio('backspace.mp3'),
-            space: new Audio('space.mp3'),
-            KeyA: new Audio('KeyA.mp3'),
-            KeyB: new Audio('KeyB.mp3'),
-            KeyC: new Audio('KeyC.mp3'),
-            KeyD: new Audio('KeyD.mp3'),
-            KeyE: new Audio('KeyE.mp3'),
-            KeyF: new Audio('KeyF.mp3'),
-            KeyG: new Audio('KeyG.mp3'),
-            KeyH: new Audio('KeyH.mp3'),
-            KeyI: new Audio('KeyI.mp3'),
-            KeyJ: new Audio('KeyJ.mp3'),
-            KeyK: new Audio('KeyK.mp3'),
-            KeyL: new Audio('KeyL.mp3'),
-            KeyM: new Audio('KeyM.mp3'),
-            KeyN: new Audio('KeyN.mp3'),
-            KeyO: new Audio('KeyO.mp3'),
-            KeyP: new Audio('KeyP.mp3'),
-            KeyQ: new Audio('KeyQ.mp3'),
-            KeyR: new Audio('KeyR.mp3'),
-            KeyS: new Audio('KeyS.mp3'),
-            KeyT: new Audio('KeyT.mp3'),
-            KeyU: new Audio('KeyU.mp3'),
-            KeyV: new Audio('KeyV.mp3'),
-            KeyW: new Audio('KeyW.mp3'),
-            KeyX: new Audio('KeyX.mp3'),
-            KeyY: new Audio('KeyY.mp3'),
-            KeyZ: new Audio('KeyZ.mp3')
-        };
-
-        // Play sound based on key pressed
-        function playSound(key) {
-            const sound = sounds[key];
-            if (sound) {
-                sound.play();
-            }
-        }
-
         const editor = document.getElementById('editor');
         const fontSelector = document.getElementById('fontSelector');
         const fontSizeSelector = document.getElementById('fontSizeSelector');
@@ -146,17 +106,43 @@
         const justifyAlignBtn = document.getElementById('justifyAlignBtn');
         const saveBtn = document.getElementById('saveBtn');
 
+        function playSound(sound) {
+            console.log(`Attempting to play sound: ${sound}`);
+            
+            const audio = new Audio(`${sound}.mp3`);
+            
+            // Error handling
+            audio.onerror = (e) => {
+                console.error(`Failed to load the audio file: ${sound}.mp3`, e);
+            };
+
+            audio.oncanplaythrough = () => {
+                console.log(`Successfully loaded ${sound}.mp3`);
+                audio.play().catch(err => {
+                    console.error("Error playing audio:", err);
+                });
+            };
+            
+            // Start loading the sound
+            audio.load();
+        }
+
         editor.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                document.execCommand('insertParagraph', false, null);
-                e.preventDefault();
-            } else if (e.key === 'Backspace') {
-                playSound('backspace');
-            } else if (e.key === ' ') {
-                playSound('space');
-            } else {
-                const key = `Key${e.key.toUpperCase()}`;
-                playSound(key);
+            console.log(`Key pressed: ${e.key}`); // Log the pressed key
+            switch (e.key) {
+                case 'Backspace':
+                    playSound('backspace');
+                    break;
+                case 'Enter':
+                    playSound('enter-key');
+                    break;
+                case ' ':
+                    playSound('space');
+                    break;
+                default:
+                    const keyCode = e.keyCode || e.which;
+                    playSound(`Key${keyCode}`);
+                    break;
             }
         });
 
