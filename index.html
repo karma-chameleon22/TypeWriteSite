@@ -85,4 +85,129 @@
         <button id="underlineBtn"><u>U</u></button>
         <button id="leftAlignBtn">Left</button>
         <button id="centerAlignBtn">Center</button>
-   
+        <button id="rightAlignBtn">Right</button>
+        <button id="justifyAlignBtn">Justify</button>
+        <button id="saveBtn">Save</button>
+    </div>
+    <div id="editor" class="editor" contenteditable="true">
+        <p class="paragraph"></p>
+    </div>
+
+    <script>
+        // Audio files for key sounds
+        const sounds = {
+            backspace: new Audio('sounds/backspace.mp3'),
+            space: new Audio('sounds/space.mp3'),
+            KeyA: new Audio('sounds/KeyA.mp3'),
+            KeyB: new Audio('sounds/KeyB.mp3'),
+            KeyC: new Audio('sounds/KeyC.mp3'),
+            KeyD: new Audio('sounds/KeyD.mp3'),
+            KeyE: new Audio('sounds/KeyE.mp3'),
+            KeyF: new Audio('sounds/KeyF.mp3'),
+            KeyG: new Audio('sounds/KeyG.mp3'),
+            KeyH: new Audio('sounds/KeyH.mp3'),
+            KeyI: new Audio('sounds/KeyI.mp3'),
+            KeyJ: new Audio('sounds/KeyJ.mp3'),
+            KeyK: new Audio('sounds/KeyK.mp3'),
+            KeyL: new Audio('sounds/KeyL.mp3'),
+            KeyM: new Audio('sounds/KeyM.mp3'),
+            KeyN: new Audio('sounds/KeyN.mp3'),
+            KeyO: new Audio('sounds/KeyO.mp3'),
+            KeyP: new Audio('sounds/KeyP.mp3'),
+            KeyQ: new Audio('sounds/KeyQ.mp3'),
+            KeyR: new Audio('sounds/KeyR.mp3'),
+            KeyS: new Audio('sounds/KeyS.mp3'),
+            KeyT: new Audio('sounds/KeyT.mp3'),
+            KeyU: new Audio('sounds/KeyU.mp3'),
+            KeyV: new Audio('sounds/KeyV.mp3'),
+            KeyW: new Audio('sounds/KeyW.mp3'),
+            KeyX: new Audio('sounds/KeyX.mp3'),
+            KeyY: new Audio('sounds/KeyY.mp3'),
+            KeyZ: new Audio('sounds/KeyZ.mp3')
+        };
+
+        // Play sound based on key pressed
+        function playSound(key) {
+            const sound = sounds[key];
+            if (sound) {
+                sound.play();
+            }
+        }
+
+        const editor = document.getElementById('editor');
+        const fontSelector = document.getElementById('fontSelector');
+        const fontSizeSelector = document.getElementById('fontSizeSelector');
+        const boldBtn = document.getElementById('boldBtn');
+        const italicBtn = document.getElementById('italicBtn');
+        const underlineBtn = document.getElementById('underlineBtn');
+        const leftAlignBtn = document.getElementById('leftAlignBtn');
+        const centerAlignBtn = document.getElementById('centerAlignBtn');
+        const rightAlignBtn = document.getElementById('rightAlignBtn');
+        const justifyAlignBtn = document.getElementById('justifyAlignBtn');
+        const saveBtn = document.getElementById('saveBtn');
+
+        editor.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.execCommand('insertParagraph', false, null);
+                e.preventDefault();
+            } else if (e.key === 'Backspace') {
+                playSound('backspace');
+            } else if (e.key === ' ') {
+                playSound('space');
+            } else {
+                const key = `Key${e.key.toUpperCase()}`;
+                playSound(key);
+            }
+        });
+
+        fontSelector.addEventListener('change', () => {
+            document.execCommand('fontName', false, fontSelector.value);
+        });
+
+        fontSizeSelector.addEventListener('change', () => {
+            document.execCommand('fontSize', false, "7");
+            document.querySelectorAll('font[size="7"]').forEach(el => el.removeAttribute('size'));
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('foreColor', false, fontSizeSelector.value);
+        });
+
+        boldBtn.addEventListener('click', () => {
+            document.execCommand('bold');
+        });
+
+        italicBtn.addEventListener('click', () => {
+            document.execCommand('italic');
+        });
+
+        underlineBtn.addEventListener('click', () => {
+            document.execCommand('underline');
+        });
+
+        leftAlignBtn.addEventListener('click', () => {
+            document.execCommand('justifyLeft');
+        });
+
+        centerAlignBtn.addEventListener('click', () => {
+            document.execCommand('justifyCenter');
+        });
+
+        rightAlignBtn.addEventListener('click', () => {
+            document.execCommand('justifyRight');
+        });
+
+        justifyAlignBtn.addEventListener('click', () => {
+            document.execCommand('justifyFull');
+        });
+
+        saveBtn.addEventListener('click', () => {
+            const content = editor.innerHTML;
+            const title = document.getElementById('titleInput').value || 'Untitled Document';
+            const blob = new Blob([content], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${title}.html`;
+            link.click();
+        });
+    </script>
+</body>
+</html>
