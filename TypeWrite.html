@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typewriter</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Toolbar for controls */
+        .toolbar {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Title input in the toolbar */
+        .toolbar input {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-size: 18px;
+            font-family: 'Courier', monospace;
+            width: 200px;
+            border-radius: 5px;
+        }
+
+        .toolbar input::placeholder {
+            color: #bbb;
+        }
+
+        .toolbar button,
+        .toolbar select {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .toolbar button:hover,
+        .toolbar select:hover {
+            background-color: #666;
+        }
+
+        /* Textarea with background image */
+        textarea {
+            flex-grow: 1;
+            background: url('paper.jpg') no-repeat center center;
+            background-size: 100% 100%;
+            background-position: center center;
+            background-attachment: fixed;
+            color: black;
+            font-family: 'Courier', monospace;
+            font-size: 12pt;
+            border: none;
+            outline: none;
+            padding: 20px;
+            resize: none;
+            box-sizing: border-box;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        #saveBtn {
+            background-color: #007bff;
+            padding: 8px 16px;
+            color: white;
+            border-radius: 5px;
+        }
+
+        #saveBtn:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Toolbar for controls -->
+    <div class="toolbar">
+        <!-- Document title input -->
+        <input type="text" id="titleInput" placeholder="Document Title">
+
+        <!-- Font selection -->
+        <select id="fontSelector">
+            <option value="Arial">Arial</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Comic Sans MS">Comic Sans MS</option>
+            <option value="Courier New">Courier New</option>
+        </select>
+
+        <!-- Font size selection -->
+        <select id="fontSizeSelector">
+            <option value="12pt">12pt</option>
+            <option value="14pt">14pt</option>
+            <option value="16pt">16pt</option>
+            <option value="18pt">18pt</option>
+            <option value="20pt">20pt</option>
+        </select>
+
+        <!-- Text styling buttons -->
+        <div>
+            <button id="boldBtn"><b>B</b></button>
+            <button id="italicBtn"><i>I</i></button>
+            <button id="underlineBtn"><u>U</u></button>
+        </div>
+
+        <!-- Alignment options -->
+        <div>
+            <button id="leftAlignBtn">Left</button>
+            <button id="centerAlignBtn">Center</button>
+            <button id="rightAlignBtn">Right</button>
+            <button id="justifyAlignBtn">Justify</button>
+        </div>
+
+        <!-- Save button -->
+        <button id="saveBtn">Save</button>
+    </div>
+
+    <!-- Writing area -->
+    <textarea id="typewriter"></textarea>
+
+    <script src="typewriter-sounds.js"></script>
+    <script>
+        // Get elements
+        const fontSelector = document.getElementById('fontSelector');
+        const fontSizeSelector = document.getElementById('fontSizeSelector');
+        const boldBtn = document.getElementById('boldBtn');
+        const italicBtn = document.getElementById('italicBtn');
+        const underlineBtn = document.getElementById('underlineBtn');
+        const leftAlignBtn = document.getElementById('leftAlignBtn');
+        const centerAlignBtn = document.getElementById('centerAlignBtn');
+        const rightAlignBtn = document.getElementById('rightAlignBtn');
+        const justifyAlignBtn = document.getElementById('justifyAlignBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const textarea = document.getElementById('typewriter');
+        const titleInput = document.getElementById('titleInput');
+
+        // Change font
+        fontSelector.addEventListener('change', () => {
+            textarea.style.fontFamily = fontSelector.value;
+        });
+
+        // Change font size
+        fontSizeSelector.addEventListener('change', () => {
+            textarea.style.fontSize = fontSizeSelector.value;
+        });
+
+        // Bold, Italic, and Underline functionality
+        boldBtn.addEventListener('click', () => {
+            document.execCommand('bold');
+        });
+
+        italicBtn.addEventListener('click', () => {
+            document.execCommand('italic');
+        });
+
+        underlineBtn.addEventListener('click', () => {
+            document.execCommand('underline');
+        });
+
+        // Alignment buttons
+        leftAlignBtn.addEventListener('click', () => {
+            textarea.style.textAlign = 'left';
+        });
+
+        centerAlignBtn.addEventListener('click', () => {
+            textarea.style.textAlign = 'center';
+        });
+
+        rightAlignBtn.addEventListener('click', () => {
+            textarea.style.textAlign = 'right';
+        });
+
+        justifyAlignBtn.addEventListener('click', () => {
+            textarea.style.textAlign = 'justify';
+        });
+
+        // Save button (Download content as a .txt file with the title as filename)
+        saveBtn.addEventListener('click', () => {
+            const content = textarea.value;
+            const title = titleInput.value || 'Untitled Document'; // Default to 'Untitled Document' if no title is entered
+            const blob = new Blob([content], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${title}.txt`;
+            link.click();
+        });
+    </script>
+</body>
+</html>
