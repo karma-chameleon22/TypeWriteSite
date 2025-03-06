@@ -94,6 +94,8 @@
     </div>
 
     <script>
+        const { ipcRenderer } = require('electron');
+
         const editor = document.getElementById('editor');
         const fontSelector = document.getElementById('fontSelector');
         const fontSizeSelector = document.getElementById('fontSizeSelector');
@@ -110,6 +112,12 @@
             if (e.key === 'Enter') {
                 document.execCommand('insertParagraph', false, null);
                 e.preventDefault();
+            } else if (e.key === 'Backspace') {
+                ipcRenderer.send('play-sound', 'backspace');
+            } else if (e.key === ' ') {
+                ipcRenderer.send('play-sound', 'space');
+            } else {
+                ipcRenderer.send('play-sound', e.key.toLowerCase());
             }
         });
 
