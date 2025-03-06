@@ -14,6 +14,7 @@
             height: 100vh;
         }
 
+        /* Toolbar for controls */
         .toolbar {
             background-color: #333;
             color: white;
@@ -24,7 +25,24 @@
             align-items: center;
         }
 
-        .toolbar input, .toolbar button, .toolbar select {
+        /* Title input in the toolbar */
+        .toolbar input {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-size: 18px;
+            font-family: 'Courier', monospace;
+            width: 200px;
+            border-radius: 5px;
+        }
+
+        .toolbar input::placeholder {
+            color: #bbb;
+        }
+
+        .toolbar button,
+        .toolbar select {
             background-color: #444;
             color: white;
             border: none;
@@ -33,46 +51,60 @@
             border-radius: 5px;
         }
 
-        .toolbar input {
-            font-size: 18px;
-            font-family: 'Courier', monospace;
-            width: 200px;
-        }
-
-        .toolbar input::placeholder {
-            color: #bbb;
-        }
-
-        .toolbar button:hover, .toolbar select:hover {
+        .toolbar button:hover,
+        .toolbar select:hover {
             background-color: #666;
         }
 
-        .editor {
+        /* Textarea with background image */
+        textarea {
             flex-grow: 1;
-            padding: 20px;
             background: url('paper.jpg') no-repeat center center;
-            background-size: cover;
+            background-size: 100% 100%;
+            background-position: center center;
+            background-attachment: fixed;
+            color: black;
+            font-family: 'Courier', monospace;
+            font-size: 12pt;
+            border: none;
+            outline: none;
+            padding: 20px;
+            resize: none;
+            box-sizing: border-box;
+            white-space: pre-wrap;
             overflow-y: auto;
+            line-height: 1.5;
         }
 
-        .paragraph {
-            min-height: 1.5em;
+        #saveBtn {
+            background-color: #007bff;
+            padding: 8px 16px;
+            color: white;
+            border-radius: 5px;
         }
 
-        .selected {
-            outline: 1px dashed blue;
+        #saveBtn:hover {
+            background-color: #0056b3;
         }
+
     </style>
 </head>
 <body>
+
+    <!-- Toolbar for controls -->
     <div class="toolbar">
+        <!-- Document title input -->
         <input type="text" id="titleInput" placeholder="Document Title">
+
+        <!-- Font selection -->
         <select id="fontSelector">
             <option value="Arial">Arial</option>
             <option value="Times New Roman">Times New Roman</option>
             <option value="Comic Sans MS">Comic Sans MS</option>
             <option value="Courier New">Courier New</option>
         </select>
+
+        <!-- Font size selection -->
         <select id="fontSizeSelector">
             <option value="12pt">12pt</option>
             <option value="14pt">14pt</option>
@@ -80,21 +112,32 @@
             <option value="18pt">18pt</option>
             <option value="20pt">20pt</option>
         </select>
-        <button id="boldBtn"><b>B</b></button>
-        <button id="italicBtn"><i>I</i></button>
-        <button id="underlineBtn"><u>U</u></button>
-        <button id="leftAlignBtn">Left</button>
-        <button id="centerAlignBtn">Center</button>
-        <button id="rightAlignBtn">Right</button>
-        <button id="justifyAlignBtn">Justify</button>
+
+        <!-- Text styling buttons -->
+        <div>
+            <button id="boldBtn"><b>B</b></button>
+            <button id="italicBtn"><i>I</i></button>
+            <button id="underlineBtn"><u>U</u></button>
+        </div>
+
+        <!-- Alignment options -->
+        <div>
+            <button id="leftAlignBtn">Left</button>
+            <button id="centerAlignBtn">Center</button>
+            <button id="rightAlignBtn">Right</button>
+            <button id="justifyAlignBtn">Justify</button>
+        </div>
+
+        <!-- Save button -->
         <button id="saveBtn">Save</button>
     </div>
-    <div id="editor" class="editor" contenteditable="true">
-        <p class="paragraph"></p>
-    </div>
 
+    <!-- Writing area -->
+    <textarea id="typewriter"></textarea>
+
+    <script src="typewriter-sounds.js"></script>
     <script>
-        const editor = document.getElementById('editor');
+        // Get elements
         const fontSelector = document.getElementById('fontSelector');
         const fontSizeSelector = document.getElementById('fontSizeSelector');
         const boldBtn = document.getElementById('boldBtn');
@@ -105,58 +148,20 @@
         const rightAlignBtn = document.getElementById('rightAlignBtn');
         const justifyAlignBtn = document.getElementById('justifyAlignBtn');
         const saveBtn = document.getElementById('saveBtn');
+        const textarea = document.getElementById('typewriter');
+        const titleInput = document.getElementById('titleInput');
 
-        function playSound(sound) {
-            console.log(`Attempting to play sound: ${sound}`);
-            
-            const audio = new Audio(`${sound}.mp3`);
-            
-            // Error handling
-            audio.onerror = (e) => {
-                console.error(`Failed to load the audio file: ${sound}.mp3`, e);
-            };
-
-            audio.oncanplaythrough = () => {
-                console.log(`Successfully loaded ${sound}.mp3`);
-                audio.play().catch(err => {
-                    console.error("Error playing audio:", err);
-                });
-            };
-            
-            // Start loading the sound
-            audio.load();
-        }
-
-        editor.addEventListener('keydown', (e) => {
-            console.log(`Key pressed: ${e.key}`); // Log the pressed key
-            switch (e.key) {
-                case 'Backspace':
-                    playSound('backspace');
-                    break;
-                case 'Enter':
-                    playSound('enter-key');
-                    break;
-                case ' ':
-                    playSound('space');
-                    break;
-                default:
-                    const keyCode = e.keyCode || e.which;
-                    playSound(`Key${keyCode}`);
-                    break;
-            }
-        });
-
+        // Change font
         fontSelector.addEventListener('change', () => {
-            document.execCommand('fontName', false, fontSelector.value);
+            textarea.style.fontFamily = fontSelector.value;
         });
 
+        // Change font size
         fontSizeSelector.addEventListener('change', () => {
-            document.execCommand('fontSize', false, "7");
-            document.querySelectorAll('font[size="7"]').forEach(el => el.removeAttribute('size'));
-            document.execCommand('styleWithCSS', false, true);
-            document.execCommand('foreColor', false, fontSizeSelector.value);
+            textarea.style.fontSize = fontSizeSelector.value;
         });
 
+        // Bold, Italic, and Underline functionality
         boldBtn.addEventListener('click', () => {
             document.execCommand('bold');
         });
@@ -169,29 +174,31 @@
             document.execCommand('underline');
         });
 
+        // Alignment buttons
         leftAlignBtn.addEventListener('click', () => {
-            document.execCommand('justifyLeft');
+            textarea.style.textAlign = 'left';
         });
 
         centerAlignBtn.addEventListener('click', () => {
-            document.execCommand('justifyCenter');
+            textarea.style.textAlign = 'center';
         });
 
         rightAlignBtn.addEventListener('click', () => {
-            document.execCommand('justifyRight');
+            textarea.style.textAlign = 'right';
         });
 
         justifyAlignBtn.addEventListener('click', () => {
-            document.execCommand('justifyFull');
+            textarea.style.textAlign = 'justify';
         });
 
+        // Save button (Download content as a .txt file with the title as filename)
         saveBtn.addEventListener('click', () => {
-            const content = editor.innerHTML;
-            const title = document.getElementById('titleInput').value || 'Untitled Document';
-            const blob = new Blob([content], { type: 'text/html' });
+            const content = textarea.value;
+            const title = titleInput.value || 'Untitled Document'; // Default to 'Untitled Document' if no title is entered
+            const blob = new Blob([content], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `${title}.html`;
+            link.download = `${title}.txt`;
             link.click();
         });
     </script>
