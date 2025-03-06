@@ -14,7 +14,6 @@
             height: 100vh;
         }
 
-        /* Toolbar for controls */
         .toolbar {
             background-color: #333;
             color: white;
@@ -25,24 +24,7 @@
             align-items: center;
         }
 
-        /* Title input in the toolbar */
-        .toolbar input {
-            background-color: #444;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            font-size: 18px;
-            font-family: 'Courier', monospace;
-            width: 200px;
-            border-radius: 5px;
-        }
-
-        .toolbar input::placeholder {
-            color: #bbb;
-        }
-
-        .toolbar button,
-        .toolbar select {
+        .toolbar input, .toolbar button, .toolbar select {
             background-color: #444;
             color: white;
             border: none;
@@ -51,60 +33,46 @@
             border-radius: 5px;
         }
 
-        .toolbar button:hover,
-        .toolbar select:hover {
+        .toolbar input {
+            font-size: 18px;
+            font-family: 'Courier', monospace;
+            width: 200px;
+        }
+
+        .toolbar input::placeholder {
+            color: #bbb;
+        }
+
+        .toolbar button:hover, .toolbar select:hover {
             background-color: #666;
         }
 
-        /* Textarea with background image */
-        textarea {
+        .editor {
             flex-grow: 1;
-            background: url('paper.jpg') no-repeat center center;
-            background-size: 100% 100%;
-            background-position: center center;
-            background-attachment: fixed;
-            color: black;
-            font-family: 'Courier', monospace;
-            font-size: 12pt;
-            border: none;
-            outline: none;
             padding: 20px;
-            resize: none;
-            box-sizing: border-box;
-            white-space: pre-wrap;
+            background: url('paper.jpg') no-repeat center center;
+            background-size: cover;
             overflow-y: auto;
-            line-height: 1.5;
         }
 
-        #saveBtn {
-            background-color: #007bff;
-            padding: 8px 16px;
-            color: white;
-            border-radius: 5px;
+        .paragraph {
+            min-height: 1.5em;
         }
 
-        #saveBtn:hover {
-            background-color: #0056b3;
+        .selected {
+            outline: 1px dashed blue;
         }
-
     </style>
 </head>
 <body>
-
-    <!-- Toolbar for controls -->
     <div class="toolbar">
-        <!-- Document title input -->
         <input type="text" id="titleInput" placeholder="Document Title">
-
-        <!-- Font selection -->
         <select id="fontSelector">
             <option value="Arial">Arial</option>
             <option value="Times New Roman">Times New Roman</option>
             <option value="Comic Sans MS">Comic Sans MS</option>
             <option value="Courier New">Courier New</option>
         </select>
-
-        <!-- Font size selection -->
         <select id="fontSizeSelector">
             <option value="12pt">12pt</option>
             <option value="14pt">14pt</option>
@@ -112,32 +80,21 @@
             <option value="18pt">18pt</option>
             <option value="20pt">20pt</option>
         </select>
-
-        <!-- Text styling buttons -->
-        <div>
-            <button id="boldBtn"><b>B</b></button>
-            <button id="italicBtn"><i>I</i></button>
-            <button id="underlineBtn"><u>U</u></button>
-        </div>
-
-        <!-- Alignment options -->
-        <div>
-            <button id="leftAlignBtn">Left</button>
-            <button id="centerAlignBtn">Center</button>
-            <button id="rightAlignBtn">Right</button>
-            <button id="justifyAlignBtn">Justify</button>
-        </div>
-
-        <!-- Save button -->
+        <button id="boldBtn"><b>B</b></button>
+        <button id="italicBtn"><i>I</i></button>
+        <button id="underlineBtn"><u>U</u></button>
+        <button id="leftAlignBtn">Left</button>
+        <button id="centerAlignBtn">Center</button>
+        <button id="rightAlignBtn">Right</button>
+        <button id="justifyAlignBtn">Justify</button>
         <button id="saveBtn">Save</button>
     </div>
+    <div id="editor" class="editor" contenteditable="true">
+        <p class="paragraph"></p>
+    </div>
 
-    <!-- Writing area -->
-    <textarea id="typewriter"></textarea>
-
-    <script src="typewriter-sounds.js"></script>
     <script>
-        // Get elements
+        const editor = document.getElementById('editor');
         const fontSelector = document.getElementById('fontSelector');
         const fontSizeSelector = document.getElementById('fontSizeSelector');
         const boldBtn = document.getElementById('boldBtn');
@@ -148,20 +105,25 @@
         const rightAlignBtn = document.getElementById('rightAlignBtn');
         const justifyAlignBtn = document.getElementById('justifyAlignBtn');
         const saveBtn = document.getElementById('saveBtn');
-        const textarea = document.getElementById('typewriter');
-        const titleInput = document.getElementById('titleInput');
 
-        // Change font
+        editor.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.execCommand('insertParagraph', false, null);
+                e.preventDefault();
+            }
+        });
+
         fontSelector.addEventListener('change', () => {
-            textarea.style.fontFamily = fontSelector.value;
+            document.execCommand('fontName', false, fontSelector.value);
         });
 
-        // Change font size
         fontSizeSelector.addEventListener('change', () => {
-            textarea.style.fontSize = fontSizeSelector.value;
+            document.execCommand('fontSize', false, "7");
+            document.querySelectorAll('font[size="7"]').forEach(el => el.removeAttribute('size'));
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('foreColor', false, fontSizeSelector.value);
         });
 
-        // Bold, Italic, and Underline functionality
         boldBtn.addEventListener('click', () => {
             document.execCommand('bold');
         });
@@ -174,31 +136,29 @@
             document.execCommand('underline');
         });
 
-        // Alignment buttons
         leftAlignBtn.addEventListener('click', () => {
-            textarea.style.textAlign = 'left';
+            document.execCommand('justifyLeft');
         });
 
         centerAlignBtn.addEventListener('click', () => {
-            textarea.style.textAlign = 'center';
+            document.execCommand('justifyCenter');
         });
 
         rightAlignBtn.addEventListener('click', () => {
-            textarea.style.textAlign = 'right';
+            document.execCommand('justifyRight');
         });
 
         justifyAlignBtn.addEventListener('click', () => {
-            textarea.style.textAlign = 'justify';
+            document.execCommand('justifyFull');
         });
 
-        // Save button (Download content as a .txt file with the title as filename)
         saveBtn.addEventListener('click', () => {
-            const content = textarea.value;
-            const title = titleInput.value || 'Untitled Document'; // Default to 'Untitled Document' if no title is entered
-            const blob = new Blob([content], { type: 'text/plain' });
+            const content = editor.innerHTML;
+            const title = document.getElementById('titleInput').value || 'Untitled Document';
+            const blob = new Blob([content], { type: 'text/html' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `${title}.txt`;
+            link.download = `${title}.html`;
             link.click();
         });
     </script>
