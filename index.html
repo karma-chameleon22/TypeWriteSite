@@ -56,8 +56,8 @@
             background-color: #666;
         }
 
-        /* Textarea with background image */
-        textarea {
+        /* Editable div */
+        #typewriter {
             flex-grow: 1;
             background: url('paper.jpg') no-repeat center center;
             background-size: 100% 100%;
@@ -74,6 +74,9 @@
             white-space: pre-wrap;
             overflow-y: auto;
             line-height: 1.5;
+            min-height: 200px;
+            max-height: 100%;
+            margin-top: 20px;
         }
 
         #saveBtn {
@@ -132,10 +135,75 @@
         <button id="saveBtn">Save</button>
     </div>
 
-    <!-- Writing area -->
-    <textarea id="typewriter"></textarea>
+    <!-- Editable content area -->
+    <div id="typewriter" contenteditable="true"></div>
 
-    <!-- Link to the main.js script -->
-    <script src="main.js"></script>
+    <script src="typewriter-sounds.js"></script>
+    <script>
+        // Get elements
+        const fontSelector = document.getElementById('fontSelector');
+        const fontSizeSelector = document.getElementById('fontSizeSelector');
+        const boldBtn = document.getElementById('boldBtn');
+        const italicBtn = document.getElementById('italicBtn');
+        const underlineBtn = document.getElementById('underlineBtn');
+        const leftAlignBtn = document.getElementById('leftAlignBtn');
+        const centerAlignBtn = document.getElementById('centerAlignBtn');
+        const rightAlignBtn = document.getElementById('rightAlignBtn');
+        const justifyAlignBtn = document.getElementById('justifyAlignBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const typewriterDiv = document.getElementById('typewriter');
+        const titleInput = document.getElementById('titleInput');
+
+        // Change font
+        fontSelector.addEventListener('change', () => {
+            typewriterDiv.style.fontFamily = fontSelector.value;
+        });
+
+        // Change font size
+        fontSizeSelector.addEventListener('change', () => {
+            typewriterDiv.style.fontSize = fontSizeSelector.value;
+        });
+
+        // Bold, Italic, and Underline functionality
+        boldBtn.addEventListener('click', () => {
+            document.execCommand('bold');
+        });
+
+        italicBtn.addEventListener('click', () => {
+            document.execCommand('italic');
+        });
+
+        underlineBtn.addEventListener('click', () => {
+            document.execCommand('underline');
+        });
+
+        // Alignment buttons
+        leftAlignBtn.addEventListener('click', () => {
+            typewriterDiv.style.textAlign = 'left';
+        });
+
+        centerAlignBtn.addEventListener('click', () => {
+            typewriterDiv.style.textAlign = 'center';
+        });
+
+        rightAlignBtn.addEventListener('click', () => {
+            typewriterDiv.style.textAlign = 'right';
+        });
+
+        justifyAlignBtn.addEventListener('click', () => {
+            typewriterDiv.style.textAlign = 'justify';
+        });
+
+        // Save button (Download content as a .txt file with the title as filename)
+        saveBtn.addEventListener('click', () => {
+            const content = typewriterDiv.innerHTML;
+            const title = titleInput.value || 'Untitled Document'; // Default to 'Untitled Document' if no title is entered
+            const blob = new Blob([content], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${title}.txt`;
+            link.click();
+        });
+    </script>
 </body>
 </html>
