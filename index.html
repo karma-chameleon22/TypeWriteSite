@@ -76,14 +76,14 @@
             line-height: 1.5;
         }
 
-        #saveBtn {
+        #saveBtn, #savePdfBtn {
             background-color: #007bff;
             padding: 8px 16px;
             color: white;
             border-radius: 5px;
         }
 
-        #saveBtn:hover {
+        #saveBtn:hover, #savePdfBtn:hover {
             background-color: #0056b3;
         }
 
@@ -100,6 +100,11 @@
             'backspace.mp3': new Audio('backspace.mp3'),
             'tab.mp3': new Audio('tab.mp3')  // Optional, if you have a sound for Tab key
         };
+
+        // Preload jsPDF library (for saving as PDF)
+        var script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        document.head.appendChild(script);
     </script>
 
     <!-- Toolbar for controls -->
@@ -139,8 +144,9 @@
             <button id="justifyAlignBtn">Justify</button>
         </div>
 
-        <!-- Save button -->
-        <button id="saveBtn">Save</button>
+        <!-- Save buttons -->
+        <button id="saveBtn">Save as .txt</button>
+        <button id="savePdfBtn">Save as PDF</button>
     </div>
 
     <!-- Writing area -->
@@ -159,6 +165,7 @@
         const rightAlignBtn = document.getElementById('rightAlignBtn');
         const justifyAlignBtn = document.getElementById('justifyAlignBtn');
         const saveBtn = document.getElementById('saveBtn');
+        const savePdfBtn = document.getElementById('savePdfBtn');
         const textarea = document.getElementById('typewriter');
         const titleInput = document.getElementById('titleInput');
 
@@ -202,15 +209,27 @@
             textarea.style.textAlign = 'justify';
         });
 
-        // Save button (Download content as a .txt file with the title as filename)
+        // Save as .txt button
         saveBtn.addEventListener('click', () => {
             const content = textarea.value;
-            const title = titleInput.value || 'Untitled Document'; // Default to 'Untitled Document' if no title is entered
+            const title = titleInput.value || 'Untitled Document'; 
             const blob = new Blob([content], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = `${title}.txt`;
             link.click();
+        });
+
+        // Save as PDF button
+        savePdfBtn.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Set title and content
+            const content = textarea.value;
+            const title = titleInput.value || 'Untitled Document'; 
+            doc.text(content, 10, 10);  // Adds text to the PDF
+            doc.save(`${title}.pdf`);
         });
 
         // Add event listener to play sounds for keypresses
@@ -235,6 +254,10 @@
             }
 
             if (sound && window.soundCache[sound]) {
+                if (!window.soundCache[sound].paused) {
+                    window.soundCache[sound].pause();  // Stop sound if it's playing
+                    window.soundCache[sound].currentTime = 0; // Reset sound to start
+                }
                 window.soundCache[sound].play();
             }
         });
