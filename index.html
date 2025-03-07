@@ -56,8 +56,8 @@
             background-color: #666;
         }
 
-        /* Editable div */
-        #typewriter {
+        /* Textarea with background image */
+        textarea {
             flex-grow: 1;
             background: url('paper.jpg') no-repeat center center;
             background-size: 100% 100%;
@@ -74,9 +74,7 @@
             white-space: pre-wrap;
             overflow-y: auto;
             line-height: 1.5;
-            min-height: 200px;
-            max-height: 100%;
-            margin-top: 20px;
+            word-wrap: break-word;
         }
 
         #saveBtn {
@@ -135,8 +133,8 @@
         <button id="saveBtn">Save</button>
     </div>
 
-    <!-- Editable content area -->
-    <div id="typewriter" contenteditable="true"></div>
+    <!-- Writing area -->
+    <textarea id="typewriter"></textarea>
 
     <script src="typewriter-sounds.js"></script>
     <script>
@@ -151,58 +149,88 @@
         const rightAlignBtn = document.getElementById('rightAlignBtn');
         const justifyAlignBtn = document.getElementById('justifyAlignBtn');
         const saveBtn = document.getElementById('saveBtn');
-        const typewriterDiv = document.getElementById('typewriter');
+        const textarea = document.getElementById('typewriter');
         const titleInput = document.getElementById('titleInput');
 
         // Change font
         fontSelector.addEventListener('change', () => {
-            typewriterDiv.style.fontFamily = fontSelector.value;
+            textarea.style.fontFamily = fontSelector.value;
         });
 
         // Change font size
         fontSizeSelector.addEventListener('change', () => {
-            typewriterDiv.style.fontSize = fontSizeSelector.value;
+            textarea.style.fontSize = fontSizeSelector.value;
         });
 
-        // Bold, Italic, and Underline functionality
+        // Bold, Italic, and Underline functionality with auto-toggle
         boldBtn.addEventListener('click', () => {
             document.execCommand('bold');
+            updateButtonState(boldBtn, 'bold');
         });
 
         italicBtn.addEventListener('click', () => {
             document.execCommand('italic');
+            updateButtonState(italicBtn, 'italic');
         });
 
         underlineBtn.addEventListener('click', () => {
             document.execCommand('underline');
+            updateButtonState(underlineBtn, 'underline');
         });
 
         // Alignment buttons
         leftAlignBtn.addEventListener('click', () => {
-            typewriterDiv.style.textAlign = 'left';
+            textarea.style.textAlign = 'left';
         });
 
         centerAlignBtn.addEventListener('click', () => {
-            typewriterDiv.style.textAlign = 'center';
+            textarea.style.textAlign = 'center';
         });
 
         rightAlignBtn.addEventListener('click', () => {
-            typewriterDiv.style.textAlign = 'right';
+            textarea.style.textAlign = 'right';
         });
 
         justifyAlignBtn.addEventListener('click', () => {
-            typewriterDiv.style.textAlign = 'justify';
+            textarea.style.textAlign = 'justify';
         });
 
         // Save button (Download content as a .txt file with the title as filename)
         saveBtn.addEventListener('click', () => {
-            const content = typewriterDiv.innerHTML;
+            const content = textarea.value;
             const title = titleInput.value || 'Untitled Document'; // Default to 'Untitled Document' if no title is entered
             const blob = new Blob([content], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = `${title}.txt`;
             link.click();
+        });
+
+        // Function to update button state based on current selection
+        function updateButtonState(button, style) {
+            const isActive = document.queryCommandState(style);
+            if (isActive) {
+                button.style.backgroundColor = '#666';  // Active state
+            } else {
+                button.style.backgroundColor = '#444';  // Inactive state
+            }
+        }
+
+        // Ensures pressing Enter creates a distinct paragraph
+        textarea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();  // Prevent default behavior
+                const currentValue = textarea.value;
+                const selectionStart = textarea.selectionStart;
+                const selectionEnd = textarea.selectionEnd;
+
+                // Split the text at the cursor and insert a new line
+                const beforeCursor = currentValue.slice(0, selectionStart);
+                const afterCursor = currentValue.slice(selectionEnd);
+
+                textarea.value = beforeCursor + '\n' + afterCursor;
+                textarea.selectionStart = textarea.selectionEnd = beforeCursor.length + 1;
+            }
         });
     </script>
 </body>
