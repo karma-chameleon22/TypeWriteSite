@@ -137,101 +137,124 @@
     <textarea id="typewriter"></textarea>
 
     <script src="typewriter-sounds.js"></script>
-    <script>
-        // Get elements
-        const fontSelector = document.getElementById('fontSelector');
-        const fontSizeSelector = document.getElementById('fontSizeSelector');
-        const boldBtn = document.getElementById('boldBtn');
-        const italicBtn = document.getElementById('italicBtn');
-        const underlineBtn = document.getElementById('underlineBtn');
-        const leftAlignBtn = document.getElementById('leftAlignBtn');
-        const centerAlignBtn = document.getElementById('centerAlignBtn');
-        const rightAlignBtn = document.getElementById('rightAlignBtn');
-        const justifyAlignBtn = document.getElementById('justifyAlignBtn');
-        const saveBtn = document.getElementById('saveBtn');
-        const textarea = document.getElementById('typewriter');
-        const titleInput = document.getElementById('titleInput');
+   <script>
+    // Get elements
+    const fontSelector = document.getElementById('fontSelector');
+    const fontSizeSelector = document.getElementById('fontSizeSelector');
+    const boldBtn = document.getElementById('boldBtn');
+    const italicBtn = document.getElementById('italicBtn');
+    const underlineBtn = document.getElementById('underlineBtn');
+    const leftAlignBtn = document.getElementById('leftAlignBtn');
+    const centerAlignBtn = document.getElementById('centerAlignBtn');
+    const rightAlignBtn = document.getElementById('rightAlignBtn');
+    const justifyAlignBtn = document.getElementById('justifyAlignBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const textarea = document.getElementById('typewriter');
+    const titleInput = document.getElementById('titleInput');
 
-        // Change font
-        fontSelector.addEventListener('change', () => {
-            textarea.style.fontFamily = fontSelector.value;
-        });
+    // Audio elements - these are now preloaded in `main.js`
+    const soundCache = window.soundCache || {};
 
-        // Change font size
-        fontSizeSelector.addEventListener('change', () => {
-            textarea.style.fontSize = fontSizeSelector.value;
-        });
+    // Change font
+    fontSelector.addEventListener('change', () => {
+        textarea.style.fontFamily = fontSelector.value;
+    });
 
-        // Bold, Italic, and Underline functionality with auto-toggle
-        boldBtn.addEventListener('click', () => {
-            document.execCommand('bold');
-            updateButtonState(boldBtn, 'bold');
-        });
+    // Change font size
+    fontSizeSelector.addEventListener('change', () => {
+        textarea.style.fontSize = fontSizeSelector.value;
+    });
 
-        italicBtn.addEventListener('click', () => {
-            document.execCommand('italic');
-            updateButtonState(italicBtn, 'italic');
-        });
+    // Bold, Italic, and Underline functionality with auto-toggle
+    boldBtn.addEventListener('click', () => {
+        document.execCommand('bold');
+        updateButtonState(boldBtn, 'bold');
+    });
 
-        underlineBtn.addEventListener('click', () => {
-            document.execCommand('underline');
-            updateButtonState(underlineBtn, 'underline');
-        });
+    italicBtn.addEventListener('click', () => {
+        document.execCommand('italic');
+        updateButtonState(italicBtn, 'italic');
+    });
 
-        // Alignment buttons
-        leftAlignBtn.addEventListener('click', () => {
-            textarea.style.textAlign = 'left';
-        });
+    underlineBtn.addEventListener('click', () => {
+        document.execCommand('underline');
+        updateButtonState(underlineBtn, 'underline');
+    });
 
-        centerAlignBtn.addEventListener('click', () => {
-            textarea.style.textAlign = 'center';
-        });
+    // Alignment buttons
+    leftAlignBtn.addEventListener('click', () => {
+        textarea.style.textAlign = 'left';
+    });
 
-        rightAlignBtn.addEventListener('click', () => {
-            textarea.style.textAlign = 'right';
-        });
+    centerAlignBtn.addEventListener('click', () => {
+        textarea.style.textAlign = 'center';
+    });
 
-        justifyAlignBtn.addEventListener('click', () => {
-            textarea.style.textAlign = 'justify';
-        });
+    rightAlignBtn.addEventListener('click', () => {
+        textarea.style.textAlign = 'right';
+    });
 
-        // Save button (Download content as a .txt file with the title as filename)
-        saveBtn.addEventListener('click', () => {
-            const content = textarea.value;
-            const title = titleInput.value || 'Untitled Document'; // Default to 'Untitled Document' if no title is entered
-            const blob = new Blob([content], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `${title}.txt`;
-            link.click();
-        });
+    justifyAlignBtn.addEventListener('click', () => {
+        textarea.style.textAlign = 'justify';
+    });
 
-        // Function to update button state based on current selection
-        function updateButtonState(button, style) {
-            const isActive = document.queryCommandState(style);
-            if (isActive) {
-                button.style.backgroundColor = '#666';  // Active state
-            } else {
-                button.style.backgroundColor = '#444';  // Inactive state
-            }
+    // Save button (Download content as a .txt file with the title as filename)
+    saveBtn.addEventListener('click', () => {
+        const content = textarea.value;
+        const title = titleInput.value || 'Untitled Document'; // Default to 'Untitled Document' if no title is entered
+        const blob = new Blob([content], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${title}.txt`;
+        link.click();
+    });
+
+    // Function to update button state based on current selection
+    function updateButtonState(button, style) {
+        const isActive = document.queryCommandState(style);
+        if (isActive) {
+            button.style.backgroundColor = '#666';  // Active state
+        } else {
+            button.style.backgroundColor = '#444';  // Inactive state
+        }
+    }
+
+    // Ensures pressing Enter creates a distinct paragraph
+    textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();  // Prevent default behavior
+            const currentValue = textarea.value;
+            const selectionStart = textarea.selectionStart;
+            const selectionEnd = textarea.selectionEnd;
+
+            // Split the text at the cursor and insert a new line
+            const beforeCursor = currentValue.slice(0, selectionStart);
+            const afterCursor = currentValue.slice(selectionEnd);
+
+            textarea.value = beforeCursor + '\n' + afterCursor;
+            textarea.selectionStart = textarea.selectionEnd = beforeCursor.length + 1;
+        } else {
+            // Play typing sounds as you type
+            playTypingSound(e.key);
+        }
+    });
+
+    // Function to play the typing sound for each key
+    function playTypingSound(key) {
+        let soundFile = 'Key1.mp3'; // Default sound
+        if (key === ' ') {
+            soundFile = 'space.mp3';
+        } else if (key === 'Enter') {
+            soundFile = 'enter-key.mp3';
+        } else if (key === 'Backspace') {
+            soundFile = 'backspace.mp3';
         }
 
-        // Ensures pressing Enter creates a distinct paragraph
-        textarea.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();  // Prevent default behavior
-                const currentValue = textarea.value;
-                const selectionStart = textarea.selectionStart;
-                const selectionEnd = textarea.selectionEnd;
+        if (soundCache[soundFile]) {
+            soundCache[soundFile].play();
+        }
+    }
+</script>
 
-                // Split the text at the cursor and insert a new line
-                const beforeCursor = currentValue.slice(0, selectionStart);
-                const afterCursor = currentValue.slice(selectionEnd);
-
-                textarea.value = beforeCursor + '\n' + afterCursor;
-                textarea.selectionStart = textarea.selectionEnd = beforeCursor.length + 1;
-            }
-        });
-    </script>
 </body>
 </html>
